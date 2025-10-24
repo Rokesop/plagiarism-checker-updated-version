@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Text Detector</title>
+  <style>
+    body { font-family: Arial; padding: 40px; text-align: center; background: #fafafa; }
+    textarea {
+      width: 80%; height: 150px; margin: 15px 0;
+      font-size: 16px; padding: 10px; border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px; font-size: 16px; cursor: pointer;
+      background-color: #007bff; color: white; border: none; border-radius: 8px;
+    }
+    button:hover { background-color: #0056b3; }
+    #result {
+      font-size: 20px; font-weight: bold; margin-top: 20px;
+      padding: 15px; border-radius: 8px; display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h2>🧠 AI vs Human Text Detector</h2>
+  <p>Paste your text below and click "Check".</p>
+
+  <textarea id="text" placeholder="Paste your text here..."></textarea><br>
+  <button onclick="detectAI()">Check</button>
+
+  <div id="result"></div>
+
+  <script>
+  async function detectAI() {
+    const text = document.getElementById("text").value;
+    const resultDiv = document.getElementById("result");
+
+    if (!text.trim()) {
+      resultDiv.textContent = "Please enter some text first.";
+      resultDiv.style.background = "#ffe0e0";
+      return;
+    }
+
+    resultDiv.textContent = "Analyzing...";
+    resultDiv.style.background = "#fff3cd";
+
+    const res = await fetch("/detect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await res.json();
+
+    if (data.result === "AI-generated") {
+      resultDiv.style.background = "#ffd6d6";
+      resultDiv.style.color = "#c20000";
+    } else if (data.result === "Human-written") {
+      resultDiv.style.background = "#d6ffd6";
+      resultDiv.style.color = "#007a00";
+    } else {
+      resultDiv.style.background = "#eee";
+      resultDiv.style.color = "#000";
+    }
+
+    resultDiv.textContent = `${data.result} — Confidence: ${data.confidence}%`;
+  }
+  </script>
+</body>
+</html>
